@@ -110,7 +110,7 @@ public class Percolation {
     this.validate(j);
   }
 
-  // pretty-print current state open/closed sited
+  // pretty-print current state of sites
   private void printSites() {
     for (int i = 1; i <= N; i++) {
       for (int j = 1; j <= N; j++) {
