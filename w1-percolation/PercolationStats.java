@@ -10,9 +10,6 @@ public class PercolationStats {
   // perform trials independent experiments on an n-by-n grid
   public PercolationStats(int n, int trials) {
     N = n; T = trials;
-
-    if (N <= 0 || T <= 0) throw new java.lang.IllegalArgumentException("bad stuff");
-
     double[] results = new double[T];
 
     for (int i = 0; i < T; i++) {
@@ -24,6 +21,7 @@ public class PercolationStats {
       }
       results[i] = perc.numberOfOpenSites() * 1.0 / (N * N);  
     }
+
     mean = StdStats.mean(results);
     stddev = StdStats.stddev(results);
   }
