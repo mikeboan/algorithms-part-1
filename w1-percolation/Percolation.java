@@ -1,31 +1,21 @@
-import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-
 public class Percolation {
-  private static final boolean BLOCKED = false;
-  private static final boolean OPEN = true;
-  private static final int TOP = 0;
+  private static final int BLOCKED = 0;
+  private static final byte OPEN = 1;
+  private static final byte FULL = 2;
+  private static final byte TOP = 0;
 
   private final int N;
-  private final int BOTTOM;
-
-  private boolean[] sites;
+  private byte[] sites;
   private int openSites = 0;
-  private WeightedQuickUnionUF wquuf;
-  private WeightedQuickUnionUF backwash;
+  private boolean percolates = false;
 
   // create N-by-N grid with all sites blocked
   public Percolation(int n) {
     if (n < 1) throw new IllegalArgumentException("n must be > 1");
 
     N = n;
-    BOTTOM = N * N + 1;
-    wquuf = new WeightedQuickUnionUF(BOTTOM + 1); // virtual top and  bottom
-    backwash = new WeightedQuickUnionUF(BOTTOM); // v. top, no v. bottom
-    sites = new boolean[BOTTOM + 1]; // v. top and bottom
-
-    // virtual top and bottom always open
-    sites[TOP] = OPEN;
-    sites[BOTTOM] = OPEN;
+    sites = new byte[N * N + 1]; // v. top, no bottom
+    sites[TOP] = OPEN; // virtual top always open
   }
 
   // open site (row, col) if it is not open already
@@ -42,13 +32,14 @@ public class Percolation {
   // is site (row, col) open?
   public boolean isOpen(int row, int col) {
     this.validate(row, col);
-    return sites[this.xyTo1D(row, col)];
+    int pos = this.xyTo1D(row, col);
+    return sites[pos] == OPEN || sites[pos] == FULL;
   }
 
   // is site (row, col) full?
   public boolean isFull(int row, int col) {
     this.validate(row, col);
-    return backwash.connected(xyTo1D(row, col), TOP);
+    return sites[this.xyTo1D(row, col)] == FULL;
   };
 
   // number of open sites
@@ -58,7 +49,7 @@ public class Percolation {
 
   // does the system percolate?
   public boolean percolates() {
-    return wquuf.connected(TOP, BOTTOM);
+    return percolates;
   }
 
   // conect site at (row, col) to all open sites around it
@@ -66,22 +57,33 @@ public class Percolation {
   private void connect(int row, int col) {
     int[][] deltas = { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
 
+    if (row == 1) this.fill(row, col);
+
     for (int i = 0; i < deltas.length; i++) {
       int nextRow = row + deltas[i][0];
       int nextCol = col + deltas[i][1];
-      if (this.isValid(nextRow, nextCol) && this.isOpen(nextRow, nextCol)) {
-        this.union(xyTo1D(row, col), xyTo1D(nextRow, nextCol));
-      }
-    }
 
-    if (row == 1) this.union(TOP, xyTo1D(row, col));
-    if (row == N) wquuf.union(BOTTOM, xyTo1D(row, col));
+      if (!this.isValid(nextRow, nextCol)) continue;
+      if (this.isFull(nextRow, nextCol)) this.fill(row, col);
+    }
   }
 
-  // union in both backwash-prone wquuf and in anti-backwash wquuf
-  private void union(int p, int q) {
-    wquuf.union(p, q);
-    backwash.union(p, q);
+  // recursively fill sites
+  private void fill(int row, int col) {
+    if (this.isFull(row, col) || !this.isOpen(row, col)) return;
+
+    sites[this.xyTo1D(row, col)] = FULL;
+    if (row == N) percolates = true;
+
+    int[][] deltas = { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
+
+    for (int i = 0; i < deltas.length; i++) {
+      int nextRow = row + deltas[i][0];
+      int nextCol = col + deltas[i][1];
+
+      if (!this.isValid(nextRow, nextCol)) continue;
+      this.fill(nextRow, nextCol);
+    }
   }
 
   // is site (row, col) on the grid?
@@ -114,8 +116,9 @@ public class Percolation {
   private void printSites() {
     for (int i = 1; i <= N; i++) {
       for (int j = 1; j <= N; j++) {
-        char open = this.isOpen(i, j) ? 'o' : 'x';
-        System.out.print(" " + open + " ");
+        char site = this.isOpen(i, j) ? 'o' : 'x';
+        site = this.isFull(i, j) ? 'f' : site;
+        System.out.print(" " + site + " ");
       }
       System.out.println();
     }
@@ -128,6 +131,7 @@ public class Percolation {
     p.open(2, 1);
     p.open(3, 1);
     p.open(3, 2);
+    p.open(2, 3);
     p.open(4, 2);
     System.out.println(p.percolates());
     p.printSites();
