@@ -1,7 +1,7 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class Deque<Item> /*implements Iterable<Item>*/ {
+public class Deque<Item> implements Iterable<Item> {
   // linked list
   private class Node {
     private Item item;
@@ -87,35 +87,57 @@ public class Deque<Item> /*implements Iterable<Item>*/ {
     return oldNode.item;
   }
 
-  // return an iterator over items in order from front to end
-  /* public Iterator<Item> iterator() { */
-  /*   return new DequeIterator(); */
-  /* } */
+    // return an iterator over items in order from front to end
+  public Iterator<Item> iterator() {
+    return new DequeIterator();
+  }
 
-  /* private class DequeIterator<Item> implements Iterator<Item> { */
-  /*   private Node current = head.next; */
-  /*  */
-  /*   public boolean hasNext() { */
-  /*     return current != tail; */
-  /*   } */
-  /*  */
-  /*   public void remove() { */
-  /*     throw new java.lang.UnsupportedOperationException("I don't do that"); */
-  /*   } */
-  /*  */
-  /*   public Item next() { */
-  /*     if (this.hasNext()) throw new java.util.NoSuchElementException("empty"); */
-  /*  */
-  /*     Item item = current.next; */
-  /*     current = item; */
-  /*     return item; */
-  /*   } */
-  /* } */
+  public Iterator<Item> iterator() { return new ListIterator(); }
+
+  private class ListIterator implements Iterator<Item> {
+    private Node current = first;
+
+    public boolean hasNext() {
+      return current != tail;
+    }
+
+    public void remove() {
+      throw new java.lang.UnsupportedOperationException("I don't do that");
+    }
+
+    public Item next() {
+      if (!this.hasNext()) throw new java.util.NoSuchElementException("empty");
+
+      Item item = current.item;
+      current = current.next;
+      return item;
+    }
+  }
+
+  // private class DequeIterator<Item> implements Iterator<Item> {
+  //   private Node current = head.next;
+  //
+  //   public boolean hasNext() {
+  //     return current != tail;
+  //   }
+  //
+  //   public void remove() {
+  //     throw new java.lang.UnsupportedOperationException("I don't do that");
+  //   }
+  //
+  //   public Item next() {
+  //     if (this.hasNext()) throw new java.util.NoSuchElementException("empty");
+  //
+  //     Item item = current.next;
+  //     current = item;
+  //     return item;
+  //   }
+  // }
 
   // unit testing (optional)
   public static void main(String[] args) {
     Deque<String> deck = new Deque<String>();
-    
+
     deck.addFirst("order");
     deck.addFirst("this");
     deck.addFirst("in");
