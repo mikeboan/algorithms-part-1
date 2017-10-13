@@ -87,15 +87,10 @@ public class Deque<Item> implements Iterable<Item> {
     return oldNode.item;
   }
 
-    // return an iterator over items in order from front to end
-  public Iterator<Item> iterator() {
-    return new DequeIterator();
-  }
+  public Iterator<Item> iterator() { return new DequeIterator(); }
 
-  public Iterator<Item> iterator() { return new ListIterator(); }
-
-  private class ListIterator implements Iterator<Item> {
-    private Node current = first;
+  private class DequeIterator implements Iterator<Item> {
+    private Node current = head.next;
 
     public boolean hasNext() {
       return current != tail;
@@ -114,26 +109,6 @@ public class Deque<Item> implements Iterable<Item> {
     }
   }
 
-  // private class DequeIterator<Item> implements Iterator<Item> {
-  //   private Node current = head.next;
-  //
-  //   public boolean hasNext() {
-  //     return current != tail;
-  //   }
-  //
-  //   public void remove() {
-  //     throw new java.lang.UnsupportedOperationException("I don't do that");
-  //   }
-  //
-  //   public Item next() {
-  //     if (this.hasNext()) throw new java.util.NoSuchElementException("empty");
-  //
-  //     Item item = current.next;
-  //     current = item;
-  //     return item;
-  //   }
-  // }
-
   // unit testing (optional)
   public static void main(String[] args) {
     Deque<String> deck = new Deque<String>();
@@ -143,9 +118,8 @@ public class Deque<Item> implements Iterable<Item> {
     deck.addFirst("in");
     deck.addFirst("print");
 
-    while (!deck.isEmpty()) {
-      System.out.println(deck.removeFirst());
-    }
+    for (String s : deck) System.out.println(s);
+    while (!deck.isEmpty()) deck.removeFirst();
 
     deck.addFirst("print");
     deck.addFirst("in");
